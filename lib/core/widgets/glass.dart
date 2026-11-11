@@ -33,7 +33,9 @@ class Glass extends StatelessWidget {
           border: border,
           borderRadius: borderRadius,
         ),
-        child: padding == null ? child : Padding(padding: padding!, child: child),
+        child: padding == null
+            ? child
+            : Padding(padding: padding!, child: child),
       ),
     );
     return borderRadius == null

@@ -41,8 +41,7 @@ class PlaceholderPage extends StatelessWidget {
           separatorBuilder: (_, _) => const SizedBox(height: 16),
           itemBuilder: (context, i) {
             if (i == 0) {
-              return Text(message,
-                  style: AppText.paragraph(color: c.fg));
+              return Text(message, style: AppText.paragraph(color: c.fg));
             }
             return Container(
               height: 120,
@@ -52,10 +51,7 @@ class PlaceholderPage extends StatelessWidget {
                 boxShadow: c.cardShadow,
               ),
               alignment: Alignment.center,
-              child: Text(
-                'BAGIAN $i',
-                style: AppText.label(11, color: c.fg2),
-              ),
+              child: Text('BAGIAN $i', style: AppText.label(11, color: c.fg2)),
             );
           },
         ),

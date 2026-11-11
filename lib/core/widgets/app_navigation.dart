@@ -168,8 +168,9 @@ class AppNavRail extends StatelessWidget {
             label: 'Navigasi utama',
             explicitChildNodes: true,
             child: Column(
-              mainAxisAlignment:
-                  onLeft ? MainAxisAlignment.start : MainAxisAlignment.center,
+              mainAxisAlignment: onLeft
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               children: [
                 for (var i = 0; i < appDestinations.length; i++) ...[
                   if (i > 0) const SizedBox(height: 36),

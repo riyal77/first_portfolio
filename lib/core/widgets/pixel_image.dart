@@ -77,9 +77,7 @@ class PixelIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ??
-        IconTheme.of(context).color ??
-        AppColors.of(context).fg;
+    final c = color ?? IconTheme.of(context).color ?? AppColors.of(context).fg;
     return PixelImage(
       icon.path,
       sourceSize: PixelIcons.sourceSize,

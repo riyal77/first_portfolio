@@ -119,31 +119,34 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Tentang'));
     await tester.pumpAndSettle();
 
+    // Gulir sampai bagian JOURNEY baru saja melewati puncak layar (judulnya
+    // 20 px dari puncak; bagian dimulai 30 px di atas judul), jadi posisi
+    // baca = awal JOURNEY.
     final list = find.byKey(const PageStorageKey('about'));
-    await tester.drag(list, const Offset(0, -300));
-    await tester.pumpAndSettle();
-    final before = tester
+    final pos = tester
         .state<ScrollableState>(
           find.descendant(of: list, matching: find.byType(Scrollable)),
         )
-        .position
-        .pixels;
-    expect(before, greaterThan(0));
+        .position;
+    double journeyTop() => tester.getTopLeft(find.text('JOURNEY')).dy;
+    pos.jumpTo(pos.pixels + journeyTop() - 20);
+    await tester.pumpAndSettle();
+    final before = journeyTop();
 
-    // Pindah ke "layar depan Flip", lalu ke landscape.
+    // Layar depan Flip, lalu landscape: tab tetap, dan posisi baca tetap di
+    // bagian JOURNEY (dipetakan per bagian, bukan per piksel).
     for (final size in const [Size(402, 432), Size(874, 402)]) {
       tester.view.physicalSize = size;
       await tester.pumpAndSettle();
       final shell = tester.widget<ShellScope>(find.byType(ShellScope));
       expect(shell.tabIndex, AppTab.about);
-      final now = tester
-          .state<ScrollableState>(
-            find.descendant(of: list, matching: find.byType(Scrollable)),
-          )
-          .position
-          .pixels;
-      expect(now, before);
+      expect(journeyTop(), inInclusiveRange(-40, size.height * 0.6));
     }
+
+    // Kembali ke HP portrait: posisi semula.
+    tester.view.physicalSize = const Size(402, 874);
+    await tester.pumpAndSettle();
+    expect(journeyTop(), closeTo(before, 40));
   });
 
   testWidgets('Tombol tema membalik tema', (tester) async {

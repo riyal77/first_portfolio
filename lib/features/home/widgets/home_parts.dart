@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/assets/app_assets.dart';
+import '../../../core/external_link.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/pixel_image.dart';
@@ -219,15 +219,6 @@ class _SocialButton extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Membuka tautan di aplikasi luar (browser, aplikasi email).
-Future<void> openExternal(String url) async {
-  try {
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  } catch (_) {
-    // Tidak ada aplikasi yang bisa membuka tautan: abaikan.
   }
 }
 

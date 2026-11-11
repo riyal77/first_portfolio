@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/assets/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
-import '../../../core/widgets/pixel_image.dart';
+import '../../../core/widgets/project_widgets.dart';
 import '../../../data/project.dart';
 import 'home_parts.dart';
 import 'snap_physics.dart';
@@ -177,7 +176,8 @@ class _FeaturedProjectsSectionState extends State<FeaturedProjectsSection> {
             if (!landscape)
               ValueListenableBuilder<int>(
                 valueListenable: widget.index,
-                builder: (_, i, _) => _Dots(count: projects.length, active: i),
+                builder: (_, i, _) =>
+                    PageDots(count: projects.length, active: i),
               ),
           ],
         );
@@ -257,7 +257,7 @@ class ProjectCard extends StatelessWidget {
     final tags = Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: [for (final t in p.tags) _Tag(t)],
+      children: [for (final t in p.tags) TagChip(t)],
     );
     final desc = Text(
       p.summary ?? '',
@@ -285,7 +285,7 @@ class ProjectCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Cover(project: p),
+                    ProjectCover(project: p),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
                       child: Column(
@@ -336,132 +336,6 @@ class ProjectCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Cover extends StatelessWidget {
-  const _Cover({required this.project});
-
-  final Project project;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ColoredBox(color: c.raised),
-          Image.asset(
-            project.coverPath,
-            fit: BoxFit.cover,
-            filterQuality: project.pixelArt
-                ? FilterQuality.none
-                : FilterQuality.medium,
-            excludeFromSemantics: true,
-          ),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0x00111111), Color(0x59111111)],
-                stops: [0.55, 1],
-              ),
-            ),
-          ),
-          if (project.badge != null)
-            Positioned(left: 10, top: 10, child: ProjectBadge(project.badge!)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Badge di atas gambar: selalu #111111 82% + teks terang.
-class ProjectBadge extends StatelessWidget {
-  const ProjectBadge(this.text, {super.key});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 24,
-      padding: const EdgeInsets.only(left: 7, right: 9),
-      decoration: BoxDecoration(
-        color: AppColors.badge,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const PixelIcon(PixelIcons.trophy, size: 14, color: AppColors.paper),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: AppText.label(10, color: AppColors.paper, spacing: 0.04),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: c.tag,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: AppText.body(11.5, weight: FontWeight.w600, color: c.fg),
-      ),
-    );
-  }
-}
-
-class _Dots extends StatelessWidget {
-  const _Dots({required this.count, required this.active});
-
-  final int count;
-  final int active;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    return ExcludeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var i = 0; i < count; i++) ...[
-              if (i > 0) const SizedBox(width: 6),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: i == active ? 18 : 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: i == active ? c.fg : c.raised,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );

@@ -12,28 +12,37 @@ import 'package:first_portfolio/core/widgets/pixel_image.dart';
 import 'package:first_portfolio/data/project_repository.dart';
 
 ProjectRepository _loadProjects() => ProjectRepository.parse(
-    File(ProjectRepository.assetPath).readAsStringSync());
+  File(ProjectRepository.assetPath).readAsStringSync(),
+);
 
 Future<void> _pumpApp(WidgetTester tester, Size size) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(PortfolioApp(
-    themeController: ThemeController.inMemory(ThemeMode.light),
-    projects: _loadProjects(),
-  ));
+  await tester.pumpWidget(
+    PortfolioApp(
+      themeController: ThemeController.inMemory(ThemeMode.light),
+      projects: _loadProjects(),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
 void main() {
   group('DeviceLayout.fromSize', () {
     test('HP portrait, landscape, layar depan Flip, tablet', () {
-      expect(DeviceLayout.fromSize(const Size(402, 874)),
-          DeviceLayout.phonePortrait);
-      expect(DeviceLayout.fromSize(const Size(874, 402)),
-          DeviceLayout.phoneLandscape);
       expect(
-          DeviceLayout.fromSize(const Size(402, 432)), DeviceLayout.flipCover);
+        DeviceLayout.fromSize(const Size(402, 874)),
+        DeviceLayout.phonePortrait,
+      );
+      expect(
+        DeviceLayout.fromSize(const Size(874, 402)),
+        DeviceLayout.phoneLandscape,
+      );
+      expect(
+        DeviceLayout.fromSize(const Size(402, 432)),
+        DeviceLayout.flipCover,
+      );
       expect(DeviceLayout.fromSize(const Size(800, 1280)), DeviceLayout.tablet);
       expect(DeviceLayout.fromSize(const Size(1280, 800)), DeviceLayout.tablet);
     });
@@ -64,8 +73,12 @@ void main() {
 
     test('Tag dan baris engine', () {
       final repo = _loadProjects();
-      expect(repo.byId('icarus').tags,
-          ['Unity', 'C#', 'Platformer', 'Komersial']);
+      expect(repo.byId('icarus').tags, [
+        'Unity',
+        'C#',
+        'Platformer',
+        'Komersial',
+      ]);
       expect(repo.byId('rhythm').engineLine, 'Scratch');
       expect(repo.byId('rhythm').tags, ['Scratch', 'Rhythm', 'Tugas Kelas']);
     });
@@ -77,8 +90,9 @@ void main() {
     expect(snapPixelSize(24, 24, 2), 24);
   });
 
-  testWidgets('HP portrait: navigation bar bawah, tab bisa berpindah',
-      (tester) async {
+  testWidgets('HP portrait: navigation bar bawah, tab bisa berpindah', (
+    tester,
+  ) async {
     await _pumpApp(tester, const Size(402, 874));
     expect(find.byType(AppBottomBar), findsOneWidget);
     expect(find.byType(AppNavRail), findsNothing);
@@ -98,8 +112,9 @@ void main() {
     expect(find.byType(AppNavRail), findsOneWidget);
   });
 
-  testWidgets('Tab dan scroll tetap sama saat tata letak berganti',
-      (tester) async {
+  testWidgets('Tab dan scroll tetap sama saat tata letak berganti', (
+    tester,
+  ) async {
     await _pumpApp(tester, const Size(402, 874));
     await tester.tap(find.bySemanticsLabel('Tentang'));
     await tester.pumpAndSettle();
@@ -109,7 +124,8 @@ void main() {
     await tester.pumpAndSettle();
     final before = tester
         .state<ScrollableState>(
-            find.descendant(of: list, matching: find.byType(Scrollable)))
+          find.descendant(of: list, matching: find.byType(Scrollable)),
+        )
         .position
         .pixels;
     expect(before, greaterThan(0));
@@ -122,7 +138,8 @@ void main() {
       expect(shell.tabIndex, AppTab.about);
       final now = tester
           .state<ScrollableState>(
-              find.descendant(of: list, matching: find.byType(Scrollable)))
+            find.descendant(of: list, matching: find.byType(Scrollable)),
+          )
           .position
           .pixels;
       expect(now, before);

@@ -112,8 +112,7 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
 
     final Widget body = switch (layout) {
       DeviceLayout.phonePortrait ||
-      DeviceLayout.flipCover =>
-        _withBottomBar(mq, layout, pages),
+      DeviceLayout.flipCover => _withBottomBar(mq, layout, pages),
       DeviceLayout.phoneLandscape => _withRail(mq, c, pages, railOnLeft: false),
       DeviceLayout.tablet => _withRail(mq, c, pages, railOnLeft: true),
     };
@@ -121,10 +120,10 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: (isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
           .copyWith(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarContrastEnforced: false,
-      ),
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+          ),
       child: PopScope(
         // Tombol kembali Android: dari tab lain kembali ke Beranda dulu.
         canPop: _tab.value == AppTab.home,
@@ -156,7 +155,9 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
         Positioned.fill(
           child: MediaQuery(
             data: mq.copyWith(
-              padding: mq.padding.copyWith(bottom: mq.padding.bottom + barHeight),
+              padding: mq.padding.copyWith(
+                bottom: mq.padding.bottom + barHeight,
+              ),
             ),
             child: pages,
           ),

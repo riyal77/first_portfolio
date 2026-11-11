@@ -41,8 +41,8 @@ enum DeviceLayout {
 
   /// Tinggi isi App Banner (tanpa status bar).
   double get bannerHeight => switch (this) {
-        phonePortrait || tablet => 64,
-        phoneLandscape => 56,
-        flipCover => 52,
-      };
+    phonePortrait || tablet => 64,
+    phoneLandscape => 56,
+    flipCover => 52,
+  };
 }

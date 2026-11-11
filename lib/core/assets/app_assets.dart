@@ -46,16 +46,16 @@ abstract final class AppLogos {
   /// Logo untuk nama engine atau bahasa seperti tertulis di data proyek.
   /// GDScript memakai logo Godot.
   static String? forName(String name) => switch (name) {
-        'Godot' || 'GDScript' => godot,
-        'Unity' => unity,
-        'LÖVE' => love,
-        'Scratch' => scratch,
-        'C#' => csharp,
-        'Lua' => lua,
-        'C++' => cpp,
-        'Python' => python,
-        _ => null,
-      };
+    'Godot' || 'GDScript' => godot,
+    'Unity' => unity,
+    'LÖVE' => love,
+    'Scratch' => scratch,
+    'C#' => csharp,
+    'Lua' => lua,
+    'C++' => cpp,
+    'Python' => python,
+    _ => null,
+  };
 }
 
 /// Gambar lain.

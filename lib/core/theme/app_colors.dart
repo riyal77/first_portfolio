@@ -112,14 +112,14 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Bayangan lembut berlapis untuk kartu (setara CSS mockup:
   /// `0 1px 0 shine inset, 0 1px 2px sh1, 0 10px 24px -14px sh2`).
   List<BoxShadow> get cardShadow => [
-        BoxShadow(color: shadow1, offset: const Offset(0, 1), blurRadius: 2),
-        BoxShadow(
-          color: shadow2,
-          offset: const Offset(0, 10),
-          blurRadius: 24,
-          spreadRadius: -14,
-        ),
-      ];
+    BoxShadow(color: shadow1, offset: const Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: shadow2,
+      offset: const Offset(0, 10),
+      blurRadius: 24,
+      spreadRadius: -14,
+    ),
+  ];
 
   @override
   AppColors copyWith({

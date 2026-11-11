@@ -13,8 +13,10 @@ Future<void> main() async {
 
   // Tema tersimpan dan data proyek dimuat sebelum frame pertama agar
   // tidak ada kedipan tema atau layar kosong.
-  final (themeController, projects) =
-      await (ThemeController.load(), ProjectRepository.load()).wait;
+  final (themeController, projects) = await (
+    ThemeController.load(),
+    ProjectRepository.load(),
+  ).wait;
 
   runApp(PortfolioApp(themeController: themeController, projects: projects));
 }

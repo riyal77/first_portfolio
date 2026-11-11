@@ -24,8 +24,7 @@ class AppBanner extends StatelessWidget {
 
   /// Tinggi total banner termasuk status bar.
   static double totalHeight(BuildContext context) =>
-      MediaQuery.paddingOf(context).top +
-      DeviceLayout.of(context).bannerHeight;
+      MediaQuery.paddingOf(context).top + DeviceLayout.of(context).bannerHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +49,9 @@ class AppBanner extends StatelessWidget {
     );
     if (!showGlass) return row;
     return Glass(
-      border: Border(bottom: BorderSide(color: AppColors.of(context).glassLine)),
+      border: Border(
+        bottom: BorderSide(color: AppColors.of(context).glassLine),
+      ),
       child: row,
     );
   }
@@ -83,8 +84,12 @@ class BannerTitle extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppText.pixel(size,
-                weight: FontWeight.w600, height: 1.05, color: c.fg),
+            style: AppText.pixel(
+              size,
+              weight: FontWeight.w600,
+              height: 1.05,
+              color: c.fg,
+            ),
           ),
         ),
         if (subtitle != null)
@@ -94,9 +99,10 @@ class BannerTitle extends StatelessWidget {
               subtitle!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppText.body(12.5, color: c.fg2).copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+              style: AppText.body(
+                12.5,
+                color: c.fg2,
+              ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
             ),
           ),
       ],
@@ -134,10 +140,12 @@ class AppBackButton extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       'Kembali',
-                      style: AppText.pixel(17,
-                          weight: FontWeight.w600,
-                          color: c.fg,
-                          letterSpacing: 0.17),
+                      style: AppText.pixel(
+                        17,
+                        weight: FontWeight.w600,
+                        color: c.fg,
+                        letterSpacing: 0.17,
+                      ),
                     ),
                   ],
                 ),

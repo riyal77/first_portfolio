@@ -2,6 +2,7 @@
   "projects": [
     {
       "id": "purwodaddy",
+      "summary": "Horor naratif berbumbu komedi: seorang vlogger yang motornya mogok mencari bantuan di desa yang penuh kejanggalan.",
       "dir": "purwodaddy",
       "imageCount": 2,
       "title": "Purwodaddy",
@@ -30,6 +31,8 @@
     },
     {
       "id": "musafa",
+      "summary": "Petualangan slime kecil mencari tempat rahasia. Proyek solo pertamaku, kukerjakan dari konsep sampai kode.",
+      "pixelArt": true,
       "dir": "project_musafa",
       "imageCount": 4,
       "title": "Project Musafa",
@@ -55,6 +58,7 @@
     },
     {
       "id": "icarus",
+      "summary": "Precision platformer 2D: mitologi Yunani, komedi absurd, dan lompatan yang nyaris mustahil menuju matahari.",
       "dir": "jump_of_icarus",
       "imageCount": 6,
       "title": "Jump of Icarus",
@@ -81,6 +85,7 @@
     },
     {
       "id": "jamal",
+      "summary": "Serangga yang baru menetas di dasar laut naik ke permukaan dengan bantuan gelembung bercahaya.",
       "dir": "jamal_the_bubble_bug",
       "imageCount": 4,
       "title": "Jamal the Bubble Bug",

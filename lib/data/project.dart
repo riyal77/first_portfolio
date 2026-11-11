@@ -5,10 +5,8 @@ import 'package:flutter/foundation.dart';
 class ProjectLink {
   const ProjectLink({required this.label, required this.url});
 
-  factory ProjectLink.fromJson(Map<String, dynamic> json) => ProjectLink(
-        label: json['label'] as String,
-        url: json['url'] as String,
-      );
+  factory ProjectLink.fromJson(Map<String, dynamic> json) =>
+      ProjectLink(label: json['label'] as String, url: json['url'] as String);
 
   final String label;
   final String url;
@@ -33,6 +31,8 @@ class Project {
     required this.platform,
     required this.team,
     required this.featured,
+    this.summary,
+    this.pixelArt = false,
     required this.roles,
     this.award,
     this.badge,
@@ -42,30 +42,33 @@ class Project {
   });
 
   factory Project.fromJson(Map<String, dynamic> json) => Project(
-        id: json['id'] as String,
-        dir: json['dir'] as String,
-        imageCount: json['imageCount'] as int,
-        title: json['title'] as String,
-        year: json['year'] as int,
-        genre: json['genre'] as String,
-        tagGenre: json['tagGenre'] as String?,
-        engine: json['engine'] as String,
-        language: json['language'] as String?,
-        context: json['context'] as String,
-        contextLong: json['contextLong'] as String,
-        platform: json['platform'] as String,
-        team: json['team'] as String,
-        featured: json['featured'] as bool? ?? false,
-        roles: List<String>.unmodifiable(json['roles'] as List),
-        award: json['award'] as String?,
-        badge: json['badge'] as String?,
-        about: json['about'] as String,
-        contributions: List<String>.unmodifiable(json['contributions'] as List),
-        links: List<ProjectLink>.unmodifiable(
-          (json['links'] as List)
-              .map((e) => ProjectLink.fromJson(e as Map<String, dynamic>)),
-        ),
-      );
+    id: json['id'] as String,
+    dir: json['dir'] as String,
+    imageCount: json['imageCount'] as int,
+    title: json['title'] as String,
+    year: json['year'] as int,
+    genre: json['genre'] as String,
+    tagGenre: json['tagGenre'] as String?,
+    engine: json['engine'] as String,
+    language: json['language'] as String?,
+    context: json['context'] as String,
+    contextLong: json['contextLong'] as String,
+    platform: json['platform'] as String,
+    team: json['team'] as String,
+    featured: json['featured'] as bool? ?? false,
+    summary: json['summary'] as String?,
+    pixelArt: json['pixelArt'] as bool? ?? false,
+    roles: List<String>.unmodifiable(json['roles'] as List),
+    award: json['award'] as String?,
+    badge: json['badge'] as String?,
+    about: json['about'] as String,
+    contributions: List<String>.unmodifiable(json['contributions'] as List),
+    links: List<ProjectLink>.unmodifiable(
+      (json['links'] as List).map(
+        (e) => ProjectLink.fromJson(e as Map<String, dynamic>),
+      ),
+    ),
+  );
 
   final String id;
 
@@ -102,6 +105,12 @@ class Project {
   /// Termasuk 4 proyek unggulan Beranda.
   final bool featured;
 
+  /// Deskripsi singkat kartu Featured Projects (maks. 2 baris).
+  final String? summary;
+
+  /// Gambar berupa pixel art: tampilkan tanpa penghalusan.
+  final bool pixelArt;
+
   final List<String> roles;
 
   /// Teks penghargaan di detail (opsional).
@@ -123,12 +132,7 @@ class Project {
       List.generate(imageCount, imagePath, growable: false);
 
   /// Tag kartu: engine, bahasa, genre ringkas, konteks.
-  List<String> get tags => [
-        engine,
-        ?language,
-        tagGenre ?? genre,
-        context,
-      ];
+  List<String> get tags => [engine, ?language, tagGenre ?? genre, context];
 
   /// Baris "Engine / bahasa" di Info Singkat, mis. "Unity · C#".
   String get engineLine => language == null ? engine : '$engine · $language';

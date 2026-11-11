@@ -61,11 +61,15 @@ class ScrollAnchorKeeper {
     final pixels = controller.offset;
     final keys = sectionKeys();
     ScrollAnchor? anchor;
+    var bestTop = double.negativeInfinity;
+    // Bagian dengan puncak tertinggi yang sudah terlewati (urutan kunci
+    // tidak harus sama dengan urutan di layar, mis. tata letak dua kolom).
     for (var i = 0; i < keys.length; i++) {
       final g = _geometry(keys[i]);
       if (g == null) continue;
       final (top, height) = g;
-      if (top > pixels + 0.5) break;
+      if (top > pixels + 0.5 || top <= bestTop) continue;
+      bestTop = top;
       // Boleh > 1: posisi di celah antara bagian ini dan berikutnya.
       final f = height <= 0 ? 0.0 : ((pixels - top) / height).clamp(0.0, 2.0);
       anchor = (section: i, fraction: f);

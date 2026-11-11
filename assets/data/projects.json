@@ -1,0 +1,179 @@
+{
+  "projects": [
+    {
+      "id": "purwodaddy",
+      "dir": "purwodaddy",
+      "imageCount": 2,
+      "title": "Purwodaddy",
+      "year": 2024,
+      "genre": "Adventure",
+      "engine": "Unity",
+      "language": "C#",
+      "context": "Game Jam",
+      "contextLong": "Game Jam (GGJ 2024)",
+      "platform": "Windows",
+      "team": "5 orang",
+      "featured": true,
+      "roles": ["Game Programmer", "UI Designer"],
+      "award": "GGJ 2024 · Best Story & Best Illustration",
+      "badge": "GGJ 2024 · PEMENANG",
+      "about": "Purwodaddy adalah game horor naratif yang dibumbui komedi. Pemain berperan sebagai Jamal, seorang vlogger ‘ngabers’ yang motornya mogok di tengah perjalanan pulang. Saat ia mencari bantuan ke desa terdekat, berbagai kejanggalan mulai terjadi. Game ini dibuat untuk Global Game Jam 2024.",
+      "contributions": [
+        "Memprogram seluruh aspek suara di dalam game.",
+        "Memprogram dan menganimasikan cutscene.",
+        "Memprogram dan merancang seluruh UI di dalam game.",
+        "Membangun dan memprogram scene Main Menu dan Credits."
+      ],
+      "links": [
+        {"label": "Halaman GGJ", "url": "https://globalgamejam.org/games/2024/purwodaddy-0"}
+      ]
+    },
+    {
+      "id": "musafa",
+      "dir": "project_musafa",
+      "imageCount": 4,
+      "title": "Project Musafa",
+      "year": 2023,
+      "genre": "Platformer",
+      "engine": "Godot",
+      "language": "GDScript",
+      "context": "Pribadi",
+      "contextLong": "Proyek pribadi",
+      "platform": "Windows",
+      "team": "Solo",
+      "featured": true,
+      "roles": ["Game Designer", "Level Designer", "Game Artist", "Game Programmer"],
+      "about": "Musafa adalah slime lucu yang berpetualang mencari sebuah tempat rahasia di dunia, dengan banyak rintangan yang menghadang di sepanjang perjalanannya. Project Musafa adalah proyek solo pertamaku, dan proyek inilah yang paling banyak meningkatkan kemampuanku dalam pengembangan video game.",
+      "contributions": [
+        "Membuat seluruh konsep game.",
+        "Memprogram seluruh game: game system dan game mechanics.",
+        "Merancang dan memprogram karakter pemain dan musuh.",
+        "Merancang level dalam game.",
+        "Menggambar sprite karakter, musuh, dan aset level, lalu menganimasikannya."
+      ],
+      "links": []
+    },
+    {
+      "id": "icarus",
+      "dir": "jump_of_icarus",
+      "imageCount": 6,
+      "title": "Jump of Icarus",
+      "year": 2025,
+      "genre": "Precision Platformer",
+      "tagGenre": "Platformer",
+      "engine": "Unity",
+      "language": "C#",
+      "context": "Komersial",
+      "contextLong": "Komersial, 23Mil Studio",
+      "platform": "Windows",
+      "team": "6 orang",
+      "featured": true,
+      "roles": ["Game Programmer", "Level Designer"],
+      "about": "Jump of Icarus adalah game precision platformer 2D yang menantang, tempat mitologi Yunani berpadu dengan komedi absurd dan horor psikologis yang mencekam. Bertahanlah melewati lompatan-lompatan yang nyaris mustahil, tahan ejekan para dewa, dan tenggelamlah dalam kegilaan saat kamu mendaki menuju matahari.",
+      "contributions": [
+        "Memprogram mekanik level.",
+        "Memprogram beberapa NPC.",
+        "Merancang desain level dalam game."
+      ],
+      "links": [
+        {"label": "Lihat di Steam", "url": "https://store.steampowered.com/app/4085050/Jump_of_Icarus/"}
+      ]
+    },
+    {
+      "id": "jamal",
+      "dir": "jamal_the_bubble_bug",
+      "imageCount": 4,
+      "title": "Jamal the Bubble Bug",
+      "year": 2025,
+      "genre": "Puzzle Platformer",
+      "engine": "Godot",
+      "language": "GDScript",
+      "context": "Game Jam",
+      "contextLong": "Game Jam (GGJ 2025)",
+      "platform": "Windows",
+      "team": "6 orang",
+      "featured": true,
+      "roles": ["Game Programmer"],
+      "about": "Jamal adalah seekor serangga yang baru menetas di dasar laut. Ia bertemu sebuah gelembung bercahaya yang membantunya naik ke permukaan. Game ini dibuat untuk Global Game Jam 2025.",
+      "contributions": [
+        "Memprogram seluruh aspek karakter pemain: gerakan, menembak gelembung, dan memunculkan gelembung.",
+        "Memprogram musuh.",
+        "Memprogram game mechanics dan game system.",
+        "Memprogram dan menganimasikan cutscene."
+      ],
+      "links": [
+        {"label": "Halaman GGJ", "url": "https://globalgamejam.org/games/2025/jamal-bubble-bug-7"}
+      ]
+    },
+    {
+      "id": "breakout",
+      "dir": "breakout_clone",
+      "imageCount": 3,
+      "title": "Breakout Clone",
+      "year": 2024,
+      "genre": "Arcade",
+      "engine": "LÖVE",
+      "language": "Lua",
+      "context": "Tugas Kelas",
+      "contextLong": "Tugas kelas CS50 2D",
+      "platform": "Windows",
+      "team": "Solo",
+      "featured": false,
+      "roles": ["Game Programmer", "Level Designer"],
+      "about": "Breakout Clone adalah tiruan dari Breakout, game arcade populer buatan Atari tahun 1976. Lewat proyek ini aku mempelajari sprite atlas dan teknik slicing, serta bagaimana keduanya membantu mengoptimalkan performa game saat berjalan. Aku juga mempelajari procedural generation untuk membuat level. Game ini merupakan salah satu tugas tantangan di kelas CS50 2D.",
+      "contributions": [
+        "Memprogram seluruh game: game system dan game mechanics.",
+        "Merancang level dalam game."
+      ],
+      "links": []
+    },
+    {
+      "id": "fifty",
+      "dir": "fifty_bird",
+      "imageCount": 3,
+      "title": "Fifty Bird",
+      "year": 2024,
+      "genre": "Casual",
+      "engine": "LÖVE",
+      "language": "Lua",
+      "context": "Tugas Kelas",
+      "contextLong": "Tugas kelas CS50 2D",
+      "platform": "Windows",
+      "team": "Solo",
+      "featured": false,
+      "roles": ["Game Programmer", "Level Designer"],
+      "about": "Fifty Bird adalah tiruan dari Flappy Bird, game mobile yang sempat sangat populer. Lewat proyek ini aku mempelajari peran game object dan cara objek-objek tersebut berinteraksi dengan keseluruhan program game. Aku juga belajar merancang game state dan mengatur alur game melalui state-state tersebut. Game ini merupakan salah satu tugas tantangan di kelas CS50 2D.",
+      "contributions": [
+        "Memprogram seluruh game: game system dan game mechanics.",
+        "Merancang level dalam game."
+      ],
+      "links": []
+    },
+    {
+      "id": "rhythm",
+      "dir": "rhythm_space_bar",
+      "imageCount": 3,
+      "title": "Rhythm Space Bar",
+      "year": 2023,
+      "genre": "Rhythm",
+      "engine": "Scratch",
+      "language": null,
+      "context": "Tugas Kelas",
+      "contextLong": "Tugas kelas CS50x",
+      "platform": "Web browser",
+      "team": "Solo",
+      "featured": false,
+      "roles": ["Game Designer", "Game Programmer", "UI Artist", "Artist"],
+      "about": "Rhythm Space Bar adalah game ritme di mana pemain harus mengikuti irama musik untuk mendapatkan skor. Lewat game ini aku menjelajahi genre ritme, genre yang jarang aku sentuh sebelumnya. Justru di situlah tantangannya: membuktikan bahwa aku bisa menghasilkan konsep yang bagus dan mengeksekusinya dengan baik di genre yang belum terlalu kukenal. Game ini merupakan salah satu tugas tantangan di kelas CS50x.",
+      "contributions": [
+        "Membuat seluruh konsep game.",
+        "Memprogram seluruh game: game system dan game mechanics.",
+        "Merancang seluruh UI, aset, dan level dalam game.",
+        "Menganimasikan seluruh game."
+      ],
+      "links": [
+        {"label": "Main di Scratch", "url": "https://scratch.mit.edu/projects/868576677"}
+      ]
+    }
+  ]
+}

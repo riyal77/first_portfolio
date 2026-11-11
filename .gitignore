@@ -49,3 +49,8 @@ app.*.map.json
 
 # Personal assets related
 /bahan/
+
+# Claude Code (pengaturan & catatan pribadi, tidak dibagikan)
+.claude/settings.local.json
+CLAUDE.local.md
+CLAUDE.md

@@ -89,13 +89,11 @@ class _HomePageState extends State<HomePage> {
     if ((target - pos.pixels).abs() > 0.5) _scroll.jumpTo(target);
   }
 
-  void _openProject(Project project) {
-    // Detail proyek dibangun di branch gameProjects; untuk sekarang
-    // pindah ke tab Proyek.
-    ShellScope.of(context).goToTab(AppTab.projects);
-  }
+  /// Kartu unggulan: pindah ke tab Proyek dan buka detailnya.
+  void _openProject(Project project) =>
+      ShellScope.read(context).openProject(project.id);
 
-  void _play() => ShellScope.of(context).goToTab(AppTab.miniGame);
+  void _play() => ShellScope.read(context).goToTab(AppTab.miniGame);
 
   @override
   Widget build(BuildContext context) {

@@ -36,6 +36,12 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
   final _tab = RestorableInt(AppTab.home);
   final _navVisible = ValueNotifier<bool>(true);
 
+  /// Permintaan membuka detail proyek (id), mis. dari kartu di Beranda.
+  final _projectRequest = ValueNotifier<String?>(null);
+
+  /// Penangan tombol Kembali Android per tab (mis. menutup detail proyek).
+  final _backHandlers = <int, VoidCallback>{};
+
   /// Akumulasi jarak scroll searah (logika sama dengan mockup).
   double _scrollAcc = 0;
 
@@ -58,12 +64,38 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
   void dispose() {
     _tab.dispose();
     _navVisible.dispose();
+    _projectRequest.dispose();
     super.dispose();
   }
 
   void _goToTab(int index) {
     if (index != _tab.value) setState(() => _tab.value = index);
     _navVisible.value = true;
+  }
+
+  void _openProject(String id) {
+    _goToTab(AppTab.projects);
+    _projectRequest.value = id;
+  }
+
+  void _setBackHandler(int tab, VoidCallback? handler) {
+    if (_backHandlers[tab] == handler) return;
+    setState(() {
+      if (handler == null) {
+        _backHandlers.remove(tab);
+      } else {
+        _backHandlers[tab] = handler;
+      }
+    });
+  }
+
+  void _onBack() {
+    final handler = _backHandlers[_tab.value];
+    if (handler != null) {
+      handler();
+    } else if (_tab.value != AppTab.home) {
+      _goToTab(AppTab.home);
+    }
   }
 
   /// Navigation bar bawah: sembunyi saat scroll ke bawah, muncul saat
@@ -125,16 +157,21 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
             systemNavigationBarContrastEnforced: false,
           ),
       child: PopScope(
-        // Tombol kembali Android: dari tab lain kembali ke Beranda dulu.
-        canPop: _tab.value == AppTab.home,
+        // Tombol kembali Android: penangan tab aktif dulu (mis. menutup
+        // detail proyek), lalu dari tab lain kembali ke Beranda.
+        canPop:
+            _tab.value == AppTab.home && !_backHandlers.containsKey(_tab.value),
         onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) _goToTab(AppTab.home);
+          if (!didPop) _onBack();
         },
         child: ShellScope(
           layout: layout,
           tabIndex: _tab.value,
           navVisible: _navVisible,
           goToTab: _goToTab,
+          projectRequest: _projectRequest,
+          openProject: _openProject,
+          setBackHandler: _setBackHandler,
           child: Scaffold(
             backgroundColor: c.bg,
             resizeToAvoidBottomInset: false,
@@ -229,6 +266,9 @@ class ShellScope extends InheritedWidget {
     required this.tabIndex,
     required this.navVisible,
     required this.goToTab,
+    required this.projectRequest,
+    required this.openProject,
+    required this.setBackHandler,
     required super.child,
   });
 
@@ -237,8 +277,22 @@ class ShellScope extends InheritedWidget {
   final ValueListenable<bool> navVisible;
   final ValueChanged<int> goToTab;
 
+  /// Id proyek yang diminta dibuka; halaman Game Projects mendengarkannya,
+  /// membuka detailnya, lalu mengosongkannya kembali (null).
+  final ValueNotifier<String?> projectRequest;
+
+  /// Pindah ke tab Proyek dan buka detail proyek [id].
+  final ValueChanged<String> openProject;
+
+  /// Pasang (atau lepas, dengan null) penangan tombol Kembali untuk tab.
+  final void Function(int tab, VoidCallback? handler) setBackHandler;
+
   static ShellScope of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<ShellScope>()!;
+
+  /// Seperti [of] tanpa mendaftar sebagai dependen (untuk callback).
+  static ShellScope read(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<ShellScope>()!;
 
   @override
   bool updateShouldNotify(ShellScope oldWidget) =>

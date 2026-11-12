@@ -336,7 +336,11 @@ class _PauseDialog extends StatelessWidget {
                       onPressed: onResume,
                     ),
                     const SizedBox(height: 8),
-                    GameSecondaryButton(label: PlayText.end, onPressed: onEnd),
+                    GameSecondaryButton(
+                      label: PlayText.end,
+                      onPressed: onEnd,
+                      pixelFont: true,
+                    ),
                   ],
                 ),
               ),

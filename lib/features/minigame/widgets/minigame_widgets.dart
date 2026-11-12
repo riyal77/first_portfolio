@@ -1,20 +1,15 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../../../core/assets/app_assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/pixel_image.dart';
+import '../game/bug_shapes.dart';
 import '../game/game_config.dart';
 
-/// Gambar bug sementara (kotak sederhana berwarna token tema), dipakai di
-/// layar ajakan. Sprite pixel menyusul; [BugPainter] cukup ditukar.
-///
-/// - Bug 1: kotak penuh fg.
-/// - Bug 2: kotak bergaris diagonal fg / fg2.
-/// - Bug 3: kotak berbingkai fg dengan isi kotak kecil.
-/// - Bug 4: kotak abu (fg2).
+/// Gambar bug di layar ajakan, memakai bentuk final yang sama dengan game
+/// ([paintBug]): Bug 1 kotak penuh, Bug 2 berarsir, Bug 3 berbingkai tebal,
+/// Bug 4 berbingkai putus-putus.
 class BugGlyph extends StatelessWidget {
   const BugGlyph(this.kind, {super.key, required this.size});
 
@@ -25,61 +20,37 @@ class BugGlyph extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: Size.square(size),
-      painter: BugPainter(kind, AppColors.of(context)),
+      painter: BugPainter(kind, gamePaletteOf(context)),
     );
   }
 }
 
+/// Palet permainan dari tema aktif.
+GamePalette gamePaletteOf(BuildContext context) => GamePalette.from(
+  AppColors.of(context),
+  dark: Theme.of(context).brightness == Brightness.dark,
+);
+
 class BugPainter extends CustomPainter {
-  BugPainter(this.kind, this.colors);
+  BugPainter(this.kind, this.palette);
 
   final BugKind kind;
-  final AppColors colors;
+  final GamePalette palette;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final s = size.shortestSide;
-    final rect = Offset.zero & Size.square(s);
-    final radius = Radius.circular(math.max(3, s * 0.13));
-    final rrect = RRect.fromRectAndRadius(rect, radius);
-    final fill = Paint()..color = colors.fg;
-    switch (kind) {
-      case BugKind.bug1:
-        canvas.drawRRect(rrect, fill);
-      case BugKind.bug2:
-        canvas.save();
-        canvas.clipRRect(rrect);
-        canvas.drawRect(rect, fill);
-        final stripe = Paint()
-          ..color = colors.fg2
-          ..strokeWidth = s / 7;
-        final step = s / 3.5;
-        for (var d = -s; d < s * 2; d += step) {
-          canvas.drawLine(Offset(d, 0), Offset(d + s, s), stripe);
-        }
-        canvas.restore();
-      case BugKind.bug3:
-        final w = math.max(2.0, s * 0.09);
-        canvas.drawRRect(
-          rrect.deflate(w / 2),
-          Paint()
-            ..color = colors.fg
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = w,
-        );
-        final inner = rect.deflate(s * 0.24);
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(inner, Radius.circular(radius.x * 0.4)),
-          fill,
-        );
-      case BugKind.bug4:
-        canvas.drawRRect(rrect, Paint()..color = colors.fg2);
-    }
+    paintBug(
+      canvas,
+      center: size.center(Offset.zero),
+      size: size.shortestSide,
+      kind: kind,
+      palette: palette,
+    );
   }
 
   @override
   bool shouldRepaint(BugPainter oldDelegate) =>
-      oldDelegate.kind != kind || oldDelegate.colors != colors;
+      oldDelegate.kind != kind || oldDelegate.palette != palette;
 }
 
 /// Bar progres tahan Bug 4 (terisi kiri → kanan).

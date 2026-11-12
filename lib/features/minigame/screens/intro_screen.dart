@@ -5,6 +5,7 @@ import '../../../core/layout/scroll_anchor.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
 import '../../../core/widgets/app_banner.dart';
+import '../game/bug_shapes.dart';
 import '../game/game_config.dart';
 import '../widgets/minigame_widgets.dart';
 
@@ -268,7 +269,10 @@ class _ArenaPreview extends StatelessWidget {
           children: [
             Positioned.fill(
               child: CustomPaint(
-                painter: _ArenaBugsPainter(c, scale: height / 130),
+                painter: _ArenaBugsPainter(
+                  gamePaletteOf(context),
+                  scale: height / 130,
+                ),
               ),
             ),
             Padding(
@@ -297,9 +301,9 @@ class _ArenaPreview extends StatelessWidget {
 }
 
 class _ArenaBugsPainter extends CustomPainter {
-  _ArenaBugsPainter(this.colors, {required this.scale});
+  _ArenaBugsPainter(this.palette, {required this.scale});
 
-  final AppColors colors;
+  final GamePalette palette;
   final double scale;
 
   /// (jenis, ukuran, posisi tengah x, posisi tengah y) dalam pecahan.
@@ -314,17 +318,19 @@ class _ArenaBugsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final (kind, s, fx, fy) in _bugs) {
-      final d = s * scale;
-      canvas.save();
-      canvas.translate(fx * size.width - d / 2, fy * size.height - d / 2);
-      BugPainter(kind, colors).paint(canvas, Size.square(d));
-      canvas.restore();
+      paintBug(
+        canvas,
+        center: Offset(fx * size.width, fy * size.height),
+        size: s * scale,
+        kind: kind,
+        palette: palette,
+      );
     }
   }
 
   @override
   bool shouldRepaint(_ArenaBugsPainter oldDelegate) =>
-      oldDelegate.colors != colors || oldDelegate.scale != scale;
+      oldDelegate.palette != palette || oldDelegate.scale != scale;
 }
 
 /// 4 kartu jenis bug, 2 kolom × 2 baris.

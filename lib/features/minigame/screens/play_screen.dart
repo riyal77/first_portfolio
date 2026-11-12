@@ -1,12 +1,15 @@
+import 'dart:math' as math;
+
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../../../core/assets/app_assets.dart';
 import '../../../core/layout/device_layout.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text.dart';
-import '../../../core/widgets/app_banner.dart';
 import '../../../core/widgets/pixel_image.dart';
+import '../game/bug_shapes.dart';
+import '../game/debug_rush_game.dart';
 import '../game/game_config.dart';
 import '../game/game_session.dart';
 import '../widgets/minigame_widgets.dart';
@@ -18,36 +21,22 @@ abstract final class PlayText {
   static const String resume = 'LANJUTKAN';
   static const String end = 'Akhiri permainan';
   static const String openFlip = 'Buka Flip-mu untuk bermain';
-  static const String trialLabel = 'LAYAR BERMAIN SEMENTARA';
-  static const String trialFinish = 'Selesai (uji coba)';
 }
 
-/// Layar bermain. Area permainan mengisi ruang di bawah App Banner dan di
-/// luar navigasi; teks dan UI (skor, hitung mundur, "Waktu habis!", dialog
-/// jeda, pesan layar depan Flip) berupa widget Flutter di atasnya.
+/// Layar bermain Debug Rush: [GameWidget] mengisi seluruh halaman (App Banner
+/// disembunyikan, navigasi tetap tampil), dengan overlay Flutter di atasnya:
+/// skor di tengah atas, hitung mundur "3, 2, 1", "Waktu habis!", dialog
+/// jeda, dan pesan layar depan Flip.
 ///
-/// **Sementara (branch `miniGame`):** belum ada game. Setelah hitung mundur
-/// tampil tombol "Selesai (uji coba)" yang memberi skor acak; sisa waktu
-/// juga tetap berjalan sehingga jeda bisa diuji. Di branch `debugRush`
-/// bagian tengah diganti `GameWidget` Flame.
-///
-/// Waktu dimajukan oleh [Ticker] milik layar ini. Ticker otomatis berhenti
-/// saat tab lain aktif ([TickerMode]) dan saat aplikasi di latar belakang
-/// (tidak ada frame); selang besar setelahnya diabaikan sehingga permainan
-/// tidak bergeser. Pindah tab, pindah aplikasi, atau tombol home juga
-/// memunculkan dialog jeda, sama seperti tombol kembali Android.
+/// Jeda: tombol kembali Android (lewat halaman), pindah tab, pindah
+/// aplikasi, tombol home, dan Flip ditutup di tengah permainan memunculkan
+/// dialog Lanjutkan / Akhiri permainan. Di layar depan Flip permainan tidak
+/// berjalan; setelah Lanjutkan ditekan di layar depan, tampil pesan "Buka
+/// Flip-mu untuk bermain" sampai Flip dibuka.
 class PlayScreen extends StatefulWidget {
-  const PlayScreen({
-    super.key,
-    required this.session,
-    required this.trialScore,
-    required this.onEnd,
-  });
+  const PlayScreen({super.key, required this.session, required this.onEnd});
 
   final GameSession session;
-
-  /// Skor acak untuk tombol "Selesai (uji coba)".
-  final int Function() trialScore;
 
   /// "Akhiri permainan" dari dialog jeda.
   final VoidCallback onEnd;
@@ -56,22 +45,21 @@ class PlayScreen extends StatefulWidget {
   State<PlayScreen> createState() => _PlayScreenState();
 }
 
-class _PlayScreenState extends State<PlayScreen>
-    with SingleTickerProviderStateMixin {
-  late final Ticker _ticker;
-  Duration? _last;
-
-  /// Layar depan Flip: permainan tidak berjalan.
-  bool _blocked = false;
+class _PlayScreenState extends State<PlayScreen> {
+  late final DebugRushGame _game = DebugRushGame(session: widget.session);
 
   /// Aplikasi tersembunyi (tombol home, pindah aplikasi): jeda.
-  late final AppLifecycleListener _lifecycle;
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onHide: widget.session.pauseIfRunning,
+  );
+
+  /// Tata letak sebelumnya layar depan Flip (null = belum ada).
+  bool? _wasCover;
 
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker(_tick)..start();
-    _lifecycle = AppLifecycleListener(onHide: widget.session.pauseIfRunning);
+    _lifecycle; // mulai mendengarkan
   }
 
   @override
@@ -84,164 +72,219 @@ class _PlayScreenState extends State<PlayScreen>
   @override
   void dispose() {
     _lifecycle.dispose();
-    _ticker.dispose();
     super.dispose();
-  }
-
-  void _tick(Duration elapsed) {
-    final last = _last;
-    _last = elapsed;
-    if (last == null || _blocked) return;
-    final dt = (elapsed - last).inMicroseconds / Duration.microsecondsPerSecond;
-    if (dt > GameConfig.maxFrameGap) return;
-    widget.session.advance(dt);
   }
 
   @override
   Widget build(BuildContext context) {
     final layout = DeviceLayout.of(context);
-    _blocked = layout.isCover;
-    final pad = MediaQuery.paddingOf(context);
-    final top = AppBanner.totalHeight(context);
+    final cover = layout.isCover;
+    // Flip ditutup di tengah permainan: jeda + dialog. (Menekan Mulai di
+    // layar depan tidak menjeda; cukup pesan "Buka Flip-mu".)
+    if (_wasCover == false && cover) widget.session.pauseIfRunning();
+    _wasCover = cover;
 
-    return ListenableBuilder(
-      listenable: widget.session,
-      builder: (context, _) {
-        final s = widget.session;
-        return Padding(
-          padding: EdgeInsets.only(top: top, bottom: pad.bottom),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (_blocked)
-                const _OpenFlipMessage()
-              else ...[
-                _phaseView(s),
-                if (s.phase != PlayPhase.countdown)
+    final c = AppColors.of(context);
+    _game
+      ..palette = GamePalette.from(
+        c,
+        dark: Theme.of(context).brightness == Brightness.dark,
+      )
+      ..reduceMotion = MediaQuery.disableAnimationsOf(context)
+      ..blocked = cover;
+
+    final pad = MediaQuery.paddingOf(context);
+    final landscape = layout.isLandscape;
+    final scoreSize = switch (layout) {
+      DeviceLayout.phoneLandscape => 32.0,
+      DeviceLayout.tablet => 48.0,
+      _ => 40.0,
+    };
+    final scoreTop = pad.top + (landscape ? 12 : 10);
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        final area = Rect.fromLTRB(
+          GameConfig.areaSideInset,
+          scoreTop + scoreSize + GameConfig.areaBelowScore,
+          box.maxWidth - GameConfig.areaSideInset,
+          box.maxHeight -
+              pad.bottom -
+              (layout.usesBottomBar
+                  ? GameConfig.areaAboveNav
+                  : GameConfig.areaBottomInset),
+        );
+        if (!cover) {
+          widget.session.setArea(
+            PlayArea(
+              rect: area,
+              bugSize: switch (layout) {
+                DeviceLayout.phoneLandscape => GameConfig.bugSizePhoneLandscape,
+                DeviceLayout.tablet => GameConfig.bugSizeTablet,
+                _ => GameConfig.bugSizePhonePortrait,
+              },
+              maxBugs: switch (layout) {
+                DeviceLayout.phoneLandscape => GameConfig.maxBugsPhoneLandscape,
+                DeviceLayout.tablet => GameConfig.maxBugsTablet,
+                _ => GameConfig.maxBugsPhonePortrait,
+              },
+            ),
+          );
+        }
+
+        return ListenableBuilder(
+          listenable: widget.session,
+          builder: (context, _) {
+            final s = widget.session;
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Listener(
+                  behavior: HitTestBehavior.opaque,
+                  onPointerDown: (e) {
+                    if (!_game.blocked) {
+                      s.pointerDown(e.pointer, e.localPosition);
+                    }
+                  },
+                  onPointerUp: (e) => s.pointerUp(e.pointer),
+                  onPointerCancel: (e) => s.pointerUp(e.pointer),
+                  child: GameWidget(game: _game),
+                ),
+                if (!cover) ...[
                   Positioned(
-                    left: layout.isCover ? 16 : 20,
-                    top: 16,
-                    child: _ScoreHud(score: s.score),
+                    top: scoreTop,
+                    left: 0,
+                    right: 0,
+                    // Skor ikut bergeser saat guncangan.
+                    child: Transform.translate(
+                      offset: _game.shake,
+                      child: _ScoreHud(
+                        score: s.score,
+                        size: scoreSize,
+                        overSplash: s.frozen,
+                      ),
+                    ),
                   ),
+                  Positioned.fromRect(
+                    rect: area,
+                    child: IgnorePointer(child: _phaseText(s, layout)),
+                  ),
+                ],
                 if (s.paused)
                   _PauseDialog(
                     onResume: () => s.setPaused(false),
                     onEnd: widget.onEnd,
-                  ),
+                  )
+                else if (cover)
+                  const _OpenFlipMessage(),
               ],
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _phaseView(GameSession s) {
+  Widget _phaseText(GameSession s, DeviceLayout layout) {
     final c = AppColors.of(context);
-    return switch (s.phase) {
-      PlayPhase.countdown => Center(
-        child: Text(
-          '${s.countdownNumber}',
-          key: ValueKey('countdown${s.countdownNumber}'),
-          style: AppText.pixel(112, weight: FontWeight.w600, color: c.fg),
-        ),
-      ),
-      PlayPhase.running => _TrialArea(
-        remaining: s.remaining,
-        onFinish: () => s.endRoundNow(widget.trialScore()),
-      ),
-      PlayPhase.timeUp || PlayPhase.ended => Center(
-        child: Text(
-          PlayText.timeUp,
-          style: AppText.pixel(40, weight: FontWeight.w600, color: c.fg),
-        ),
-      ),
-    };
+    final landscape = layout.isLandscape;
+    switch (s.phase) {
+      case PlayPhase.countdown:
+        // Mengecil dari 1,35× sambil muncul, memudar di 25% terakhir.
+        final p = s.countdownStepProgress;
+        final reduce = MediaQuery.disableAnimationsOf(context);
+        final scale = reduce
+            ? 1.0
+            : 1.35 - 0.35 * (1 - math.pow(1 - (p / 0.3).clamp(0.0, 1.0), 3));
+        final opacity = p > 0.75 ? 1 - (p - 0.75) / 0.25 : 1.0;
+        return Center(
+          child: Opacity(
+            opacity: opacity.clamp(0.0, 1.0),
+            child: Transform.scale(
+              scale: scale,
+              child: Text(
+                '${s.countdownNumber}',
+                style: AppText.pixel(
+                  landscape ? 80 : 96,
+                  weight: FontWeight.w600,
+                  height: 1,
+                  color: c.fg,
+                ),
+              ),
+            ),
+          ),
+        );
+      case PlayPhase.timeUp || PlayPhase.ended:
+        return Center(
+          child: Text(
+            PlayText.timeUp,
+            style: AppText.pixel(
+              landscape ? 34 : 40,
+              weight: FontWeight.w600,
+              color: c.fg,
+            ),
+          ),
+        );
+      case PlayPhase.running:
+        return const SizedBox.shrink();
+    }
   }
 }
 
-/// Skor di kiri atas area permainan (satu-satunya HUD).
+/// Skor di tengah atas tanpa label dan latar (Pixelify 600, angka
+/// tabular). Melompat kecil saat bertambah. Di atas splash, warnanya
+/// dibalik (blend difference) agar tetap terbaca.
 class _ScoreHud extends StatelessWidget {
-  const _ScoreHud({required this.score});
+  const _ScoreHud({
+    required this.score,
+    required this.size,
+    required this.overSplash,
+  });
 
   final int score;
+  final double size;
+  final bool overSplash;
 
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
+    final base = AppText.pixel(
+      size,
+      weight: FontWeight.w600,
+      height: 1,
+    ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final style = overSplash
+        ? base.copyWith(
+            foreground: Paint()
+              ..color = const Color(0xFFFFFFFF)
+              ..blendMode = BlendMode.difference,
+          )
+        : base.copyWith(color: c.fg);
+    final reduce = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       label: 'Skor $score',
       excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('SKOR', style: AppText.label(11, color: c.fg2)),
-          const SizedBox(height: 2),
-          Text(
-            '$score',
-            style: AppText.pixel(
-              30,
-              weight: FontWeight.w600,
-              height: 1,
-              color: c.fg,
-            ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+      child: Center(
+        child: TweenAnimationBuilder<double>(
+          key: ValueKey(score),
+          tween: Tween(
+            begin: score == 0 || reduce ? 1 : GameConfig.scoreBumpScale,
+            end: 1,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Isi sementara selama 2 menit: tombol uji coba + sisa waktu (hanya
-/// untuk pengujian; game sungguhan tidak menampilkan sisa waktu).
-class _TrialArea extends StatelessWidget {
-  const _TrialArea({required this.remaining, required this.onFinish});
-
-  final double remaining;
-  final VoidCallback onFinish;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AppColors.of(context);
-    final secs = remaining.ceil();
-    final time = '${secs ~/ 60}:${(secs % 60).toString().padLeft(2, '0')}';
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                PlayText.trialLabel,
-                textAlign: TextAlign.center,
-                style: AppText.label(10.5, color: c.fg2),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Sisa waktu (uji coba): $time',
-                textAlign: TextAlign.center,
-                style: AppText.body(
-                  13,
-                  color: c.fg2,
-                ).copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-              ),
-              const SizedBox(height: 16),
-              GameSecondaryButton(
-                label: PlayText.trialFinish,
-                onPressed: onFinish,
-              ),
-            ],
+          duration: Duration(
+            milliseconds: (GameConfig.scoreBumpSeconds * 1000).round(),
           ),
+          curve: Curves.easeOut,
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
+          child: Text('$score', style: style),
         ),
       ),
     );
   }
 }
 
-/// Dialog jeda (tombol kembali Android): Lanjutkan atau Akhiri permainan.
+/// Dialog jeda: Lanjutkan atau Akhiri permainan.
 class _PauseDialog extends StatelessWidget {
   const _PauseDialog({required this.onResume, required this.onEnd});
 
@@ -312,29 +355,32 @@ class _OpenFlipMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: BorderRadius.circular(12),
+    return ColoredBox(
+      color: c.bg,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: c.surface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: PixelIcon(PixelIcons.navMiniGame, size: 32, color: c.fg),
               ),
-              alignment: Alignment.center,
-              child: PixelIcon(PixelIcons.navMiniGame, size: 32, color: c.fg),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              PlayText.openFlip,
-              textAlign: TextAlign.center,
-              style: AppText.pixel(20, weight: FontWeight.w600, color: c.fg),
-            ),
-          ],
+              const SizedBox(height: 14),
+              Text(
+                PlayText.openFlip,
+                textAlign: TextAlign.center,
+                style: AppText.pixel(20, weight: FontWeight.w600, color: c.fg),
+              ),
+            ],
+          ),
         ),
       ),
     );

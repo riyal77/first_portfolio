@@ -9,6 +9,8 @@ import 'package:first_portfolio/app/app.dart';
 import 'package:first_portfolio/app/app_shell.dart';
 import 'package:first_portfolio/core/theme/theme_controller.dart';
 import 'package:first_portfolio/data/project_repository.dart';
+import 'package:first_portfolio/features/minigame/game/game_config.dart';
+import 'package:first_portfolio/features/minigame/game/game_session.dart';
 import 'package:first_portfolio/features/minigame/minigame_controller.dart';
 import 'package:first_portfolio/features/minigame/minigame_page.dart';
 
@@ -180,9 +182,18 @@ void main() {
     await _advance(tester, 1.0);
     expect(_inGame(find.text('2')), findsOneWidget);
     await _advance(tester, 2.3);
+    expect(ctl.session!.phase, PlayPhase.running);
+    // Selama bermain App Banner disembunyikan.
+    expect(_inGame(find.text('Mini Game')), findsNothing);
 
-    expect(_inGame(find.text('Selesai (uji coba)')), findsOneWidget);
-    await tester.tap(_inGame(find.text('Selesai (uji coba)')));
+    // Tap bug sungguhan lewat layar (Bug 3: 4 tap, +10).
+    final bug = ctl.session!.spawn(BugKind.bug3)!;
+    for (var i = 0; i < 4; i++) {
+      await tester.tapAt(bug.position);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(ctl.session!.score, greaterThanOrEqualTo(10));
+    ctl.session!.endRoundNow();
     await tester.pump();
     expect(_inGame(find.text('Waktu habis!')), findsOneWidget);
 
@@ -270,7 +281,7 @@ void main() {
     await tester.tap(_inGame(find.text('LANJUTKAN')));
     await tester.pump();
     await _advance(tester, 2.2);
-    expect(_inGame(find.text('Selesai (uji coba)')), findsOneWidget);
+    expect(ctl.session!.phase, PlayPhase.running);
   });
 
   testWidgets('Tombol home / pindah aplikasi menampilkan dialog jeda', (
@@ -392,13 +403,24 @@ void main() {
     expect(_inGame(find.text('Buka Flip-mu untuk bermain')), findsNothing);
     await _advance(tester, 3.3);
     final remaining = ctl.session!.remaining;
-    expect(remaining, lessThan(120));
+    expect(remaining, lessThan(GameConfig.roundSeconds));
 
-    // Flip ditutup di tengah permainan: berhenti, lalu berlanjut.
+    // Flip ditutup di tengah permainan: jeda + dialog jeda di layar depan.
     tester.view.physicalSize = const Size(402, 432);
     await tester.pump();
+    expect(ctl.session!.paused, isTrue);
+    expect(_inGame(find.text('Permainan dijeda')), findsOneWidget);
     await _advance(tester, 3);
     expect(ctl.session!.remaining, remaining);
+
+    // Lanjutkan di layar depan: pesan "Buka Flip-mu", waktu tetap berhenti.
+    await tester.tap(_inGame(find.text('LANJUTKAN')));
+    await tester.pump();
+    expect(_inGame(find.text('Buka Flip-mu untuk bermain')), findsOneWidget);
+    await _advance(tester, 2);
+    expect(ctl.session!.remaining, remaining);
+
+    // Flip dibuka: berlanjut dengan sisa waktu yang sama.
     tester.view.physicalSize = const Size(874, 402);
     await tester.pump();
     await _advance(tester, 1);

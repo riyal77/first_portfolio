@@ -7,7 +7,7 @@ import '../core/theme/app_colors.dart';
 import '../core/widgets/app_navigation.dart';
 import '../features/about/about_page.dart';
 import '../features/home/home_page.dart';
-import '../features/minigame/mini_game_page.dart';
+import '../features/minigame/minigame_page.dart';
 import '../features/projects/projects_page.dart';
 
 /// Indeks tab, sesuai urutan [appDestinations].

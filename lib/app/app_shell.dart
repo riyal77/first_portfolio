@@ -45,6 +45,8 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
   /// Akumulasi jarak scroll searah (logika sama dengan mockup).
   double _scrollAcc = 0;
 
+  DeviceLayout? _layout;
+
   static const _pages = <Widget>[
     HomePage(),
     ProjectsPage(),
@@ -119,6 +121,17 @@ class _AppShellState extends State<AppShell> with RestorationMixin {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
     final layout = DeviceLayout.fromSize(mq.size);
+    if (_layout != null && _layout != layout) {
+      // Tata letak berganti (rotasi, layar depan ↔ layar utama Flip):
+      // tampilkan lagi navigation bar. Bila tidak, bar yang tersembunyi
+      // karena scroll di tata letak lama bisa terjebak tersembunyi di
+      // halaman yang kini tidak bisa di-scroll.
+      _scrollAcc = 0;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _navVisible.value = true;
+      });
+    }
+    _layout = layout;
     final c = AppColors.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

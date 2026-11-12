@@ -94,7 +94,6 @@ class _MiniGamePageState extends State<MiniGamePage> {
       ),
       MiniGameStage.playing => PlayScreen(
         session: c.session!,
-        trialScore: c.trialScore,
         onEnd: c.endEarly,
       ),
       MiniGameStage.contact => ContactScreen(
@@ -115,12 +114,14 @@ class _MiniGamePageState extends State<MiniGamePage> {
             child: KeyedSubtree(key: ValueKey(c.stage), child: screen),
           ),
         ),
-        const Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          child: AppBanner(leading: BannerTitle('Mini Game')),
-        ),
+        // Selama bermain App Banner disembunyikan; layar hanya berisi skor.
+        if (c.stage != MiniGameStage.playing)
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: AppBanner(leading: BannerTitle('Mini Game')),
+          ),
       ],
     );
   }

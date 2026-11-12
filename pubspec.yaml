@@ -56,6 +56,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Splash ledakan Debug Rush (fragment shader).
+  shaders:
+    - shaders/splash.frag
+
   # Aset dimuat lokal (aplikasi berjalan offline).
   # Ikon pixel punya varian 2.0x/3.0x di subfolder, otomatis dipilih Flutter.
   assets:

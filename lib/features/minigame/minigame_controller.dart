@@ -109,7 +109,7 @@ class MiniGameController extends ChangeNotifier {
   /// Mulai permainan baru: langsung ke hitung mundur.
   void start() {
     _session?.removeListener(_onSession);
-    _session = GameSession()..addListener(_onSession);
+    _session = GameSession(random: _random)..addListener(_onSession);
     _stage = MiniGameStage.playing;
     notifyListeners();
   }
@@ -130,9 +130,6 @@ class MiniGameController extends ChangeNotifier {
     final session = _session;
     if (session != null) _finish(session.score);
   }
-
-  /// Skor acak untuk tombol "Selesai (uji coba)" di layar bermain sementara.
-  int trialScore() => 40 + _random.nextInt(281);
 
   void _onSession() {
     final session = _session;
